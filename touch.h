@@ -1,6 +1,9 @@
 #ifndef touch_h
 #define touch_h
-#include <CapSense.h>
+#include "CapacitiveSensor.h"
+#include "sounds.h"
+
+#define CAPSENSE_SAMPLING 30
 
 enum key {
     KEY_NONE,
@@ -17,23 +20,24 @@ enum key {
 namespace Touch{
     const int touch_common_pin=4;
     const int touch_pins[]={19,18,17,16,15,14,13,12};
-    CapSense cs[8];
+    CapacitiveSensor cs[8];
 
     void init();
     key get();
+    int value[8];
 }
 
 void Touch::init(){
     for(int i=0;i<8;i++){ 
         pinMode( touch_pins[i], OUTPUT);
-        cs[i] = new CapSense(touch_common_pin,touch_pins[i]);
+        cs[i].setPins(touch_common_pin,touch_pins[i]);
         cs[i].set_CS_AutocaL_Millis(0xFFFFFFFF);
     }
 }
 
-int Touch::get(){
+key Touch::get(){
     for(int i=0;i<8;i++){ 
-        cs[0]+=cs_0.capSense(CAPSENSE_SAMPLING);
+        value[0]+=cs[i].capacitiveSensor(CAPSENSE_SAMPLING);
     }
     //しきい値を最も大きく超えたものを返す
     //しきい値を超えたものがなければ0を返す

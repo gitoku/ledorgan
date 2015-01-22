@@ -13,7 +13,6 @@
 //[bell]ジングルベル
 //[merrychristmas]We Wish You a Merry Christma
 
-#include "led_fullcolor_9.h"
 #include <avr/pgmspace.h> 
 
 #define NOTE_A1  55//ラ

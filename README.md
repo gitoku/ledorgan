@@ -34,7 +34,7 @@ Pins
 |d6|blue led anode
 |d7|red led anode
 |d8|buzzer
-|d9|swich
+|d9|switch
 |d10|middle led cathode
 |d11|right led cathode
 |d12|touch sensor C(8va)
