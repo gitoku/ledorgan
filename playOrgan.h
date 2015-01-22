@@ -1,217 +1,71 @@
 #ifndef playorgan_h
 #define playorgan_h
 #include "led_fullcolor_3.h"
-#include <CapSense.h>
+#include "touch.h"
 
+#define BUZZER_PIN 8
 
-namespace Touch{
-    const int touch_common_pin=4;
-    const int touch_pins[]={19,18,17,16,15,14,13,12};
-
-}
-
-void touchInit(){
-    for(int i=0;i<8;i++) pinMode( touch_pins[i], OUTPUT);
-}
-
-
-CapSense cs_0=CapSense(CAPSENS_OUT,CAPSENS_PIN1);
-CapSense cs_1=CapSense(CAPSENS_OUT,CAPSENS_PIN2);
-
-int playPat(int (*pattern)(LedColor*,int),LedColor enable_color[],int color_num,LedColor jacket[]){
-    Led::lightingWhile(jacket,500);
-    while( pattern(enable_color,color_num) ) Led::lightingWhile(jacket,500);
-    while( isPress() );
-}
-int playPat(int (*pattern)(LedColor*,int),LedColor enable_color[],int color_num){
-    while( pattern(enable_color,color_num) ) delay(500);
-    while( isPress() );
-}
-
-
-
-
-LedColor int2color(int num){
-    switch (num%8) {
-        case 0: return OFF;
-        case 1: return RED;
-        case 2: return GREEN;
-        case 3: return BLUE;
-        case 4: return CYAN;
-        case 5: return MAGENTA;
-        case 6: return YELLOW;
-        case 7: return WHITE;
+void freePlay(){
+    while(1){
+        key nowKey = Touch::get();
+        duration = 100;
+        tone(BUZZER_PIN,key2note(nowKey),duration);
+        Led::setAll( key2color(nowKey) );
+        Led::lightingWhile(duration);
     }
 }
 
-LedColor int2color(int num,LedColor enable_color[],int color_num){
-    return enable_color[num%color_num];
-}
-
-
-
-
-
-
-int patternFlushPoint(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        static unsigned long cnt=0;
-        cnt += melody.play();
-        Led::setAll(OFF);
-        Led::set(pos2turn(cnt),enable_color[(cnt)%color_num]);
-        Led::lighting();
-        if( isPress() ) return false;   //スイッチが押されたら再生停止
-    }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
-}
-
-
-int patternFlushPointSlow(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        static unsigned long cnt=0;
-        int now = melody.play();
-        cnt += now;
-        if((cnt%4)==1 && now) Led::setAll(enable_color[(cnt/3)%color_num]); //3音再生ごとに色変更
-        Led::lighting();
-        if( isPress() ) return false;   //スイッチが押されたら再生停止
-    }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
-}
-
-int patternFlushC(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        static unsigned long cnt=0;
-        cnt += melody.play();
-        Led::setAll(enable_color[0]);
-        Led::set(4,OFF);
-        Led::set(pos2turn(cnt),enable_color[1]);
-        Led::set(pos2turn(cnt+1),enable_color[1]);
-        Led::set(pos2turn(cnt+2),enable_color[1]);
-        Led::lighting();
-        if( isPress() ) return false;   //スイッチが押されたら再生停止
-    }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
-}
-
-int pos2turn(int pos){
-    switch (pos%8) {
-        case 0: return 0;
-        case 1: return 1;
-        case 2: return 2;
-        case 3: return 5;
-        case 4: return 8;
-        case 5: return 7;
-        case 6: return 6;
-        case 7: return 3;
+void freePlay(){
+    while(1){
+        key now = Touch::get();
+        duration = 100;
+        tone(BUZZER_PIN,now,duration);
+        delay(duration);
     }
 }
 
 
-int patternFlushTurn(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        static unsigned long cnt=0;
-        static int pos=0;
-        cnt += melody.play();
-        pos = (int)(melody.getRestRate()*9)%9;
-        if(pos==0) Led::setAll(OFF);
-        else Led::set(pos2turn(pos-1),enable_color[cnt%color_num]);
-        Led::lighting();
-        if( isPress() ) return false;   //スイッチが押されたら再生停止
+LedColor key2color(key k){
+    switch(k){
+        case KEY_NONE:  
+            return OFF;
+        case KEY_C:
+        case KEY_C8VA: 
+            return MAGENTA;
+        case KEY_D: 
+            return RED;
+        case KEY_E: 
+            return BLUE;
+        case KEY_F: 
+            return GREEN;
+        case KEY_G: 
+            return CYAN;
+        case KEY_A: 
+            return YELLOW;
+        case KEY_B: 
+            return WHITE;
     }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
 }
 
-int patternFlushTurnC(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        static unsigned long cnt=0;
-        static int pos=0;
-        cnt += melody.play();
-        pos = (int)(melody.getRestRate()*9)%9;
-        Led::setAll(enable_color[0]);
-        Led::set(4,OFF);
-        Led::set(pos2turn(pos),OFF);
-        Led::set(pos2turn(pos+1),OFF);
-        Led::set(pos2turn(pos+2),OFF);
-        Led::set(pos2turn(pos+3),OFF);
-        Led::lighting();
-        if( isPress() ) return false;   //スイッチが押されたら再生停止
-    }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
+int key2note(key k){
+    case KEY_NONE:
+        return 0;
+    case KEY_C:
+        return NOTE_C4;
+    case KEY_D:
+        return NOTE_D4;
+    case KEY_E:
+        return NOTE_E4;
+    case KEY_F:
+        return NOTE_F4;
+    case KEY_G:
+        return NOTE_G4;
+    case KEY_A:
+        return NOTE_A5;
+    case KEY_B:
+        return NOTE_B5;
+    case KEY_C8VA:
+        return NOTE_C5
 }
-
-
-int patternPitch2Color(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        melody.play();
-        //現在再生中の音程から色を決定
-        LedColor color = int2color( melody.getPitch(),enable_color,color_num );
-        Led::setAll(color);
-        Led::lighting();
-        if( isPress() ) return false;  //スイッチが押されたら再生停止
-    }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
-}
-
-
-
-int patternRandom3(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        if( melody.play() )    //新しい音の再生が始まったら
-            for(int i=0;i<3;i++)    //３回「ランダムに選んだLEDをランダムな色に設定」する
-                Led::set(random(0,9),int2color(random(0,100),enable_color,color_num));
-        Led::lighting();
-        if( isPress() ) return false;  //スイッチが押されたら再生停止
-    }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
-}
-
-int patternRandom3Blink(LedColor enable_color[],int color_num){
-    melody.play();
-    while( melody.isPlaying() ){   //曲が終わるまで再生を継続
-        static int state = 0;
-        int now = melody.play();
-        state += now;
-        if( state%4==1 && now )    //新しい音の再生が始まったら
-            for(int i=0;i<3;i++)    //３回「ランダムに選んだLEDをランダムな色に設定」する
-                for(int j=0;j<9;j++)
-                    Led::set(j,int2color(random(0,100),enable_color,color_num));
-        else if( state%4==0 && now) Led::setAll(OFF);
-        Led::lighting();
-        if( isPress() ) return false;  //スイッチが押されたら再生停止
-    }
-    melody.stop();
-    Led::setAll(OFF);
-    Led::lighting();
-    return true;
-}
-
 
 #endif

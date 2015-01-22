@@ -1,5 +1,8 @@
-#include "sounds.h"
 #include "playOrgan.h"
+
+
+#define SWITCH_PIN 9
+#define isPress() (!digitalRead(SWITCH_PIN))
 
 
 void setup(){
@@ -7,6 +10,7 @@ void setup(){
     analogReference(INTERNAL);
     randomSeed(analogRead(0));
 
+    Touch::init();
     Led::init();
     Led::setInterval(3);
     
