@@ -6,6 +6,7 @@
 #define SWITCH_PIN 9
 #define isPress() (!digitalRead(SWITCH_PIN))
 
+PlayMelodyStep melody(BUZZER_PIN);
 
 void setup(){
     pinMode( SWITCH_PIN, INPUT_PULLUP); 
@@ -35,31 +36,25 @@ void loop(){
 	}
 	while( isPress() );
 
+
 	//
 	//[たきび]
 	//
 	//デモ演奏
 	while( !isPress() ){
 		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(takibi_Melody,takibi_Duration,takibi_Length);
 		melody.next();
-		Led::lighting(OFF);//消灯
-
 		autoPlay(melody);
-	}
-	while( isPress() );
+	}while( isPress() );
 	//演奏ガイド
 	while( !isPress() ){
 		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(takibi_Melody,takibi_Duration,takibi_Length);
 		melody.next();
-		Led::lighting(OFF);//消灯
-
 		modelPlay(melody);
-	}
-	while( isPress() );
+	}while( isPress() );
+
 
 	//
 	//[Let It Go]
@@ -67,25 +62,17 @@ void loop(){
 	//デモ演奏
 	while( !isPress() ){
 		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(letitgo_Melody,letitgo_Duration,letitgo_Length);
 		melody.next();
-		Led::lighting(OFF);//消灯
-
 		autoPlay(melody);
-	}
-	while( isPress() );
+	}while( isPress() );
 	//演奏ガイド
 	while( !isPress() ){
 		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(letitgo_Melody,letitgo_Duration,letitgo_Length);
 		melody.next();
-		Led::lighting(OFF);//消灯
-
 		modelPlay(melody);
-	}
-	while( isPress() );
+	}while( isPress() );
 
 
 	//
@@ -94,25 +81,17 @@ void loop(){
 	//デモ演奏
 	while( !isPress() ){
 		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(senbonzakura_Melody,senbonzakura_Duration,senbonzakura_Length);
 		melody.next();
-		Led::lighting(OFF);//消灯
-
 		autoPlay(melody);
-	}
-	while( isPress() );
+	}while( isPress() );
 	//演奏ガイド
 	while( !isPress() ){
 		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(senbonzakura_Melody,senbonzakura_Duration,senbonzakura_Length);
 		melody.next();
-		Led::lighting(OFF);//消灯
-
 		modelPlay(melody);
-	}
-	while( isPress() );
+	}while( isPress() );
 
 
 }
@@ -121,6 +100,7 @@ void loop(){
 
 void modelPlay(PlayMelodyStep melody){
 	// 曲が終わるかスイッチが押されるまで繰り返す
+	Led::lighting(OFF);//消灯
 	while(melody.isPlaying()){
 		if( isPress() ) break;
 		noTone(BUZZER_PIN);
