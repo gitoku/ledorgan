@@ -5,19 +5,17 @@
 #define BUZZER_PIN 8
 #define SWITCH_PIN 9
 #define isPress() (!digitalRead(SWITCH_PIN))
+#define MELODY_TEMPO 40
 
 PlayMelodyStep melody(BUZZER_PIN);
 
 void setup(){
     pinMode( SWITCH_PIN, INPUT_PULLUP); 
-    randomSeed(analogRead(0));
-
     Touch::init();
     Led::init();
-
-  // Serial.begin(9600);
-    
 }
+
+
 void loop(){
 
 	//自由演奏モード
@@ -97,7 +95,7 @@ void loop(){
 }
 
 
-
+//演奏できるようにLEDで指示
 void modelPlay(PlayMelodyStep melody){
 	// 曲が終わるかスイッチが押されるまで繰り返す
 	Led::lighting(OFF);//消灯
@@ -116,7 +114,7 @@ void modelPlay(PlayMelodyStep melody){
 			cKey = id2key(cId);
 		}
 		else cKey=KEY_NONE;
-		int leftTime = melody.getDuration()/40;
+		int leftTime = melody.getDuration()/MELODY_TEMPO;
 
 		//押すべきキーをLEDで表示
 		Led::lighting(key2color(cKey),B001);
@@ -158,7 +156,7 @@ void modelPlay(PlayMelodyStep melody){
 	}
 }
 
-
+//勝手に演奏
 void autoPlay(PlayMelodyStep melody){
 	// 曲が終わるかスイッチが押されるまで繰り返す
 	while(melody.isPlaying()){
@@ -176,7 +174,7 @@ void autoPlay(PlayMelodyStep melody){
 			cKey = id2key(cId);
 		}
 		else cKey=KEY_NONE;
-		int leftTime = melody.getDuration()/40;
+		int leftTime = melody.getDuration()/MELODY_TEMPO;
 
 		//押すべきキーをLEDで表示
 		Led::lighting(key2color(cKey),B001);
@@ -187,30 +185,24 @@ void autoPlay(PlayMelodyStep melody){
 
 			//押しているキーを取得
 			key k = Touch::get();
-			int id = key2id(k);
 
-			if(1){ 
+			//キーを押してさえいれば再生
+			if(k!=KEY_NONE){ 
 				//キーに応じて音を鳴らす
 				if(cKey==KEY_NONE) noTone(BUZZER_PIN);
 				else tone(BUZZER_PIN,cNote);
-				leftTime--; //押すべきキーが押されている時間をカウント
+				leftTime--; //キーが押されている時間をカウント
 				Led::lighting(B111);
 			}
+			//押していなければ停止
 			else{
-				//キーに応じて音を鳴らす
-				if(k==KEY_NONE) noTone(BUZZER_PIN);
-				else tone(BUZZER_PIN,note[cOct][id]);
-				Led::lighting(B001);
+				noTone(BUZZER_PIN);
+				Led::lighting(B000);
 			}
+			
 		}
-
 		Led::lighting(OFF);
 		key t = Touch::get();
-		while(t!=KEY_NONE){ 
-			t = Touch::get();
-			if( isPress() ) break;
-		}
-		noTone(BUZZER_PIN);
 
 		//次の音へ
 		melody.next();
@@ -263,3 +255,4 @@ int key2note(key k){
 			return NOTE_C5;
 	}
 }
+
