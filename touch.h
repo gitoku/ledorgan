@@ -3,7 +3,7 @@
 #include "CapacitiveSensor.h"
 #include "sounds.h"
 
-#define CAPSENSE_SAMPLING 30
+#define CAPSENSE_SAMPLING 3
 #define NOTONE (-1)
 
 //note2~7:oct1~6s
@@ -17,7 +17,7 @@ const int note[6][12]={
 };
 
 enum key {
-    KEY_NONE,
+    KEY_NONE=0,
     KEY_C,
     KEY_D,
     KEY_E,
@@ -56,13 +56,14 @@ int key2id(key k){
         case KEY_A:return 9;
         case KEY_B:return 11;
         case KEY_C8VA:return 0;
-        case KEY_NONE:return 0;
+        case KEY_NONE:return -1;
     }
 }
 
 namespace Touch{
     const int touch_common_pin=4;
     const int touch_pins[]={19,18,17,16,15,14,13,12};
+    const key pins2key[8]={KEY_C,KEY_D,KEY_E,KEY_F,KEY_G,KEY_A,KEY_B,KEY_C8VA};
     CapacitiveSensor cs[8];
 
     void init();
@@ -71,20 +72,21 @@ namespace Touch{
 }
 
 void Touch::init(){
-    for(int i=0;i<8;i++){ 
-        pinMode( touch_pins[i], OUTPUT);
-        cs[i].setPins(touch_common_pin,touch_pins[i]);
-        cs[i].set_CS_AutocaL_Millis(0xFFFFFFFF);
-    }
+    for(int i=0;i<8;i++) cs[i].setPins(touch_common_pin,touch_pins[i]);
 }
 
+
+
+
+//しきい値を最も大きく超えたものを返す
+//しきい値を超えたものがなければ0を返す
 key Touch::get(){
-    for(int i=0;i<8;i++){ 
-        value[0]+=cs[i].capacitiveSensor(CAPSENSE_SAMPLING);
+  key touch = KEY_NONE;
+  for(int i=0;i<8;i++){ 
+        value[i]=cs[i].capacitiveSensor(CAPSENSE_SAMPLING);
+        if(value[i]>2000) touch = pins2key[i];
     }
-    //しきい値を最も大きく超えたものを返す
-    //しきい値を超えたものがなければ0を返す
-    return KEY_NONE;
+    return touch;
 }
 
 //0:none
@@ -103,9 +105,7 @@ int note2oct(int note){
 }
 
 int note2addr(int n){
-    for(int i=0;i<72;i++){
-        if(n == *(&note[0][0]+i)) return i;
-    }
+    for(int i=0;i<72;i++) if(n == *(&note[0][0]+i)) return i;
     return NOTONE;
 }
 

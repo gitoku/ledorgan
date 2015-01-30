@@ -18,25 +18,23 @@ enum LedColor {
 
 
 namespace Led{
-    LedColor output[3];
-    int interval;
+    LedColor color;
+    byte state;
     const int cat_pins[]={3,10,11};
     const int ano_pins[]={7,5,6};
     
     //public
     void init();    //初期化
-    void setInterval(int val);  //ダイナミック点灯制御の切り替え周期[ms]
-    void set(byte bit,LedColor color);  //{bit}番目のLEDを{color}色に設定
-    void setAll(LedColor color);    //すべてのLEDを{color}色に設定
+    void set(LedColor _color,byte _state);  //LEDを{color}色に設定
+    void set(LedColor _color){color=_color;};
+    void set(byte _state){state=_state;};
     void lighting();    //設定された状態に発光({interval}[ms]以内に定期的に呼び出しする必要あり)
-    void lighting(LedColor data[]); //{data}の定義どおりに発光({interval}[ms]以内に定期的に呼び出しする必要あり)
-    void lightingWhile(unsigned long wait);    //設定された状態に{wait}[ms]発光
-    void lightingWhile(LedColor data[],unsigned long wait); //{data}のどおりに{wait}[ms]発光
-
+    void lighting(LedColor _color,byte _state);
+    void lighting(LedColor _color);
+    void lighting(byte _state);
     //private
-    void copy3(LedColor in[],LedColor out[]);    //要素9のLedColor配列{in}を同サイズの{out}にコピー
-    void colorWrite(LedColor color);    //アノード側LEDを{color}に設定して出力
-    void ledWrite(LedColor data[],byte bit);    //カソード側LEDを{data}のどおり出力(ただしアノード側状態を{bit}で指定)
+    void colorWrite(LedColor _color);    //アノード側LEDを{color}に設定して出力
+    void ledWrite(byte on);    //カソード側LEDを{data}のどおり出力(ただしアノード側状態を{bit}で指定)
 }
 
  void Led::init(){
@@ -46,26 +44,13 @@ namespace Led{
     }
     for(int i=0; i<3; i++) pinMode( ano_pins[i], OUTPUT);
 
-    setAll(OFF);
-    interval=10;
+    set(OFF,B000);
 }
 
-void Led::setInterval(int val){
-    interval=val;
+void Led::set(LedColor _color,byte _state){
+    color=_color;
+    state = _state;
 }
-
-void Led::set(byte bit,LedColor color){
-    output[bit]=color;
-}
-
-void Led::setAll(LedColor color){
-    for(int i=0;i<3;i++) output[i]=color;
-}
-
-void Led::copy3(LedColor in[],LedColor out[]){
-    for(int i=0;i<3;i++) out[i]=in[i];
-}
-
 
 //色ごとのLEDのON/OFF出力(Anode:正論理)
 void Led::colorWrite(LedColor color){
@@ -75,50 +60,29 @@ void Led::colorWrite(LedColor color){
 }
 
 //9個のLEDのON/OFF出力(Cathode:負論理)
-void Led::ledWrite(LedColor data[],byte bit){
-    for(int i=0;i<3;i++) digiWrite( cat_pins[i], !bitRead(data[i],bit));
+void Led::ledWrite(byte on){
+    digiWrite( cat_pins[2], !bitRead(on,0) );
+    digiWrite( cat_pins[1], !bitRead(on,1) );
+    digiWrite( cat_pins[0], !bitRead(on,2) );
 }
 
 
 void Led::lighting(){
-    static unsigned long last_time=0;
-    
-    //前回実行(青色発光開始時)からinterval[ms]待つ
-    while( (millis()-last_time) < (unsigned long)interval );
-    
-
-    //red
-    colorWrite(OFF);
-    ledWrite(output,0);
-    colorWrite(RED);
-    delay(interval);
-
-    //green
-    colorWrite(OFF);
-    ledWrite(output,1);
-    colorWrite(GREEN);
-    delay(interval);
-
-    //BLUE
-    colorWrite(OFF);
-    ledWrite(output,2);
-    colorWrite(BLUE);
-    last_time = millis();
+    colorWrite(color);
+    ledWrite(state);
+}
+void Led::lighting(LedColor _color,byte _state){
+  set(_color,_state);
+  lighting();
 }
 
-void Led::lighting(LedColor data[]){
-    copy3(data,output);
-    lighting();
+void Led::lighting(LedColor _color){
+  set(_color);
+  lighting();
+}
+void Led::lighting(byte _state){
+  set(_state);
+  lighting();
 }
 
-void Led::lightingWhile(LedColor data[],unsigned long wait){
-    unsigned long begin = millis();
-    while( (millis()-begin)>wait ) lighting(data);
-}
-
-
-void Led::lightingWhile(unsigned long wait){
-    unsigned long begin = millis();
-    while( (millis()-begin)>wait ) lighting();
-}
 #endif
