@@ -35,9 +35,36 @@ void loop(){
 	}
 	while( isPress() );
 
+	//
+	//[たきび]
+	//
+	//デモ演奏
+	while( !isPress() ){
+		//曲の設定
+		PlayMelodyStep melody(BUZZER_PIN);
+		melody.setMelody(takibi_Melody,takibi_Duration,takibi_Length);
+		melody.next();
+		Led::lighting(OFF);//消灯
 
+		autoPlay(melody);
+	}
+	while( isPress() );
+	//演奏ガイド
+	while( !isPress() ){
+		//曲の設定
+		PlayMelodyStep melody(BUZZER_PIN);
+		melody.setMelody(takibi_Melody,takibi_Duration,takibi_Length);
+		melody.next();
+		Led::lighting(OFF);//消灯
 
-	//お手本演奏モード
+		modelPlay(melody);
+	}
+	while( isPress() );
+
+	//
+	//[Let It Go]
+	//
+	//デモ演奏
 	while( !isPress() ){
 		//曲の設定
 		PlayMelodyStep melody(BUZZER_PIN);
@@ -48,6 +75,7 @@ void loop(){
 		autoPlay(melody);
 	}
 	while( isPress() );
+	//演奏ガイド
 	while( !isPress() ){
 		//曲の設定
 		PlayMelodyStep melody(BUZZER_PIN);
@@ -60,30 +88,11 @@ void loop(){
 	while( isPress() );
 
 
-        while( !isPress() ){
-		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
-		melody.setMelody(takibi_Melody,takibi_Duration,takibi_Length);
-		melody.next();
-		Led::lighting(OFF);//消灯
-
-		autoPlay(melody);
-	}
-	while( isPress() );
+	//
+	//[千本桜]
+	//
+	//デモ演奏
 	while( !isPress() ){
-		//曲の設定
-		PlayMelodyStep melody(BUZZER_PIN);
-		melody.setMelody(takibi_Melody,takibi_Duration,takibi_Length);
-		melody.next();
-		Led::lighting(OFF);//消灯
-
-		modelPlay(melody);
-	}
-	while( isPress() );
-
-
-	
-        while( !isPress() ){
 		//曲の設定
 		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(senbonzakura_Melody,senbonzakura_Duration,senbonzakura_Length);
@@ -93,7 +102,8 @@ void loop(){
 		autoPlay(melody);
 	}
 	while( isPress() );
-while( !isPress() ){
+	//演奏ガイド
+	while( !isPress() ){
 		//曲の設定
 		PlayMelodyStep melody(BUZZER_PIN);
 		melody.setMelody(senbonzakura_Melody,senbonzakura_Duration,senbonzakura_Length);
@@ -154,6 +164,7 @@ void modelPlay(PlayMelodyStep melody){
 			}
 		}
 
+		//次の指示を行う前に，タッチセンサから手を離させる
 		Led::lighting(OFF);
 		key t = Touch::get();
 		while(t!=KEY_NONE){ 
