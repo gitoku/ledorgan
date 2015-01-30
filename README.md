@@ -3,6 +3,8 @@ LED Organ
 
 八頭ものづくり教室(第四回)スケッチ
 
+![RGB_matrix](https://github.com/gitoku/RGB_matrix)をもとに実装しているため，まわりくどいライブラリ・関数構成となっている．
+余力があれば最適化する．もしくは誰かお願い．
 
 ![](reference/top.jpg)
 Files
