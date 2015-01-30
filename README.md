@@ -11,11 +11,11 @@ Files
 |ファイル名|内容|
 |:-------|:---|
 |RGB_matrix.ino|スケッチのメイン|
-|led_fullcolor_9.h|9個のフルカラーLEDをダイナミック点灯制御するためのライブラリ|
+|led_fullcolor_3.h|9個のフルカラーLEDのライブラリ|
 |digiRW.h|高速にIO処理を行うためのライブラリ|
-|playMelody.h|メロディの再生のためのライブラリ|
+|playMelodyStep.h|メロディの各情報を取り出すためのライブラリ|
 |sounds.h|メロディを記述|
-|pattern.ino|発光パターンを記述|
+|touch.h|タッチセンサに関するライブラリ|
 |README.md|このファイル|
 |LICENCE|The MIT License|
 |[reference]|参考プロジェクト|
