@@ -13,6 +13,7 @@ void setup(){
     pinMode( SWITCH_PIN, INPUT_PULLUP); 
     Touch::init();
     Led::init();
+    Serial.begin(115200);
 }
 
 
@@ -23,11 +24,13 @@ void loop(){
 		Led::set(B111);
                 
 		//タッチされているキーの取得
-		key nowKey = Touch::get();
+		int oct=0;
+		key nowKey = Touch::getplus(&oct,6);
+		if(nowKey==KEY_C8VA) oct++;
 
 		//キーに応じて音を鳴らす
 		if(nowKey==KEY_NONE) noTone(BUZZER_PIN);
-		else tone(BUZZER_PIN,key2note(nowKey));
+		else tone(BUZZER_PIN,note[2+oct][key2id(nowKey)]);
 
 		//キーに応じてLEDを発光
 		Led::lighting(key2color(nowKey));
@@ -232,27 +235,26 @@ LedColor key2color(key k){
 			return WHITE;
 	}
 }
-
-int key2note(key k){
-	switch(k){
-		case KEY_NONE:
-			return 0;
-		case KEY_C:
-			return NOTE_C4;
-		case KEY_D:
-			return NOTE_D4;
-		case KEY_E:
-			return NOTE_E4;
-		case KEY_F:
-			return NOTE_F4;
-		case KEY_G:
-			return NOTE_G4;
-		case KEY_A:
-			return NOTE_A4;
-		case KEY_B:
-			return NOTE_B4;
-		case KEY_C8VA:
-			return NOTE_C5;
-	}
-}
-
+//
+//int key2note(key k){
+//	switch(k){
+//		case KEY_NONE:
+//			return 0;
+//		case KEY_C:
+//			return NOTE_C4;
+//		case KEY_D:
+//			return NOTE_D4;
+//		case KEY_E:
+//			return NOTE_E4;
+//		case KEY_F:
+//			return NOTE_F4;
+//		case KEY_G:
+//			return NOTE_G4;
+//		case KEY_A:
+//			return NOTE_A4;
+//		case KEY_B:
+//			return NOTE_B4;
+//		case KEY_C8VA:
+//			return NOTE_C5;
+//	}
+//}

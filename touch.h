@@ -19,11 +19,16 @@ const int note[6][12]={
 enum key {
     KEY_NONE=0,
     KEY_C,
+    KEY_CD,
     KEY_D,
+    KEY_DE,
     KEY_E,
     KEY_F,
+    KEY_FG,
     KEY_G,
+    KEY_GA,
     KEY_A,
+    KEY_AB,
     KEY_B,
     KEY_C8VA
 };
@@ -49,26 +54,56 @@ key id2key(int id){
 int key2id(key k){
     switch(k){
         case KEY_C:return 0;
+        case KEY_CD:return 1;
         case KEY_D:return 2;
+        case KEY_DE:return 3;
         case KEY_E:return 4;
-        case KEY_F:return 6;
+        case KEY_F:return 5;
+        case KEY_FG:return 6;
         case KEY_G:return 7;
+        case KEY_GA:return 8;
         case KEY_A:return 9;
+        case KEY_AB:return 10;
         case KEY_B:return 11;
         case KEY_C8VA:return 0;
         case KEY_NONE:return -1;
     }
 }
 
+
+
+key pat2key(byte pattern){
+  switch(pattern){
+    case B00000001: return KEY_C;
+    case B00000011: return KEY_CD;
+    case B00000010: return KEY_D;
+    case B00000110: return KEY_DE;
+    case B00000100: return KEY_E;
+    case B00001000: return KEY_F;
+    case B00011000: return KEY_FG;
+    case B00010000: return KEY_G;
+    case B00110000: return KEY_GA;
+    case B00100000: return KEY_A;
+    case B01100000: return KEY_AB;
+    case B01000000: return KEY_B;
+    case B10000000: return KEY_C8VA;
+    default: return KEY_NONE;
+  }
+}
+
+
 namespace Touch{
     const int touch_common_pin=4;
     const int touch_pins[]={19,18,17,16,15,14,13,12};
     const key pins2key[8]={KEY_C,KEY_D,KEY_E,KEY_F,KEY_G,KEY_A,KEY_B,KEY_C8VA};
     CapacitiveSensor cs[8];
+    int value[8];
 
     void init();
     key get();
-    int value[8];
+    key get(int* o,int samp);
+    key getplus(int* o,int samp);
+    
 }
 
 void Touch::init(){
@@ -87,6 +122,46 @@ key Touch::get(){
         if(value[i]>2000) touch = pins2key[i];
     }
     return touch;
+}
+//key Touch::get(int* o,int samp){
+//  key touch = KEY_NONE;
+//  *o=0;
+//  for(int i=0;i<8;i++){ 
+//        value[i]=cs[i].capacitiveSensor(samp);
+//        Serial.print(value[i]);
+//        Serial.print("\t");
+//        if(value[i]>3000){ 
+//            touch = pins2key[i];
+//            *o=1;
+//        }
+//        else if(value[i]>1000) touch = pins2key[i];
+//    }
+//    Serial.print("\n");
+//    return touch;
+//        
+//}
+
+
+key Touch::getplus(int* o,int samp){
+  byte touchH=0,touchL=0;
+  *o=0;
+  for(int i=0;i<8;i++){ 
+        value[i]=cs[i].capacitiveSensor(samp);
+        if(value[i]>4000) bitWrite(touchH,i,HIGH);
+        if(value[i]>1000) bitWrite(touchL,i,HIGH);
+    }
+//    Serial.print(touchH,BIN);
+//    Serial.print("\t");
+//    Serial.print(touchL,BIN);
+//    Serial.print("\n");
+    key h = pat2key(touchH);
+    key l = pat2key(touchL);
+    
+    if(h==KEY_NONE) return l;
+    else {
+      *o=1;
+      return h;
+    }
 }
 
 //0:none
