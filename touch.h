@@ -147,7 +147,7 @@ key Touch::getplus(int* o,int samp){
   *o=0;
   for(int i=0;i<8;i++){ 
         value[i]=cs[i].capacitiveSensor(samp);
-        if(value[i]>4000) bitWrite(touchH,i,HIGH);
+        if(value[i]>5000) bitWrite(touchH,i,HIGH);
         if(value[i]>1000) bitWrite(touchL,i,HIGH);
     }
 //    Serial.print(touchH,BIN);

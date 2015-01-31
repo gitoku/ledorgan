@@ -11,6 +11,7 @@ PlayMelodyStep melody(BUZZER_PIN);
 
 void setup(){
     pinMode( SWITCH_PIN, INPUT_PULLUP); 
+    randomSeed(analogRead(0));
     Touch::init();
     Led::init();
     Serial.begin(115200);
@@ -18,6 +19,30 @@ void setup(){
 
 
 void loop(){
+
+  	//ミッションモード
+	while( !isPress() ){
+                  Led::set(B001);
+                  LedColor c=num2color(random(0,7));
+                  Led::lighting(c);
+                  unsigned long now = millis();
+                  tone(BUZZER_PIN,NOTE_C6,100);
+                  
+                  while((millis()-now)<2000){
+                    if( isPress() ) break;
+                    //タッチされているキーの取得
+		    key nowKey = Touch::get();
+		    if(key2color(nowKey)==c){
+                      Led::set(B011);
+                      tone(BUZZER_PIN,note[2][key2id(nowKey)],500);
+                      delay(700);
+                      noTone(BUZZER_PIN);
+                      break;
+                    }
+                  else if(nowKey!=KEY_NONE){ Led::set(B000);tone(BUZZER_PIN,NOTE_A1,100);delay(300);Led::set(B001);}
+                  }
+	}
+	while( isPress() );
 
 	//自由演奏モード
 	while( !isPress() ){
@@ -27,6 +52,8 @@ void loop(){
 		int oct=0;
 		key nowKey = Touch::getplus(&oct,6);
 		if(nowKey==KEY_C8VA) oct++;
+                
+                Serial.println(nowKey);
 
 		//キーに応じて音を鳴らす
 		if(nowKey==KEY_NONE) noTone(BUZZER_PIN);
@@ -235,6 +262,29 @@ LedColor key2color(key k){
 			return WHITE;
 	}
 }
+
+
+LedColor num2color(int k){
+	switch(k){
+		case -1:  
+			return OFF;
+		case 0: 
+			return RED;
+		case 1: 
+			return MAGENTA;
+		case 2: 
+			return BLUE;
+		case 3: 
+			return GREEN;
+		case 4: 
+			return CYAN;
+		case 5: 
+			return YELLOW;
+		case 6: 
+			return WHITE;
+	}
+}
+
 //
 //int key2note(key k){
 //	switch(k){
