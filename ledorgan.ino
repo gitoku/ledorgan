@@ -122,7 +122,6 @@ void missionSpeed(){
 		if( isPress() ) break;
 
 		//タッチされているキーの取得
-		#ifdef
 		key nowKey;
 
 		if(HI_RESPONSE) nowKey = Touch::get();
@@ -175,6 +174,7 @@ void missionMemory(){
 		delay(500);
 
 		//タッチされているキーの取得
+		key nowKey;
 		if(HI_RESPONSE) nowKey = Touch::get();
 		else nowKey = Touch::get10();
 
