@@ -3,6 +3,7 @@
 #include "touch.h"
 #include "playMelodyStep.h"
 
+#define HI_RESPONSE true
 
 #define BUZZER_PIN 8
 #define SWITCH_PIN 9
@@ -121,7 +122,12 @@ void missionSpeed(){
 		if( isPress() ) break;
 
 		//タッチされているキーの取得
-		key nowKey = Touch::get10();
+		#ifdef
+		key nowKey;
+
+		if(HI_RESPONSE) nowKey = Touch::get();
+		else nowKey = Touch::get10();
+
 		if(key2color(nowKey)==c){
 			Led::lighting(B111);
 			tone(BUZZER_PIN,note[2][key2id(nowKey)],500);
@@ -169,7 +175,9 @@ void missionMemory(){
 		delay(500);
 
 		//タッチされているキーの取得
-		key nowKey = Touch::get10();
+		if(HI_RESPONSE) nowKey = Touch::get();
+		else nowKey = Touch::get10();
+
 		Led::lighting(key2color(nowKey),B111);
 		if(key2color(nowKey)==key2color(k[cnt])){
 			tone(BUZZER_PIN,note[2][key2id(nowKey)],500);
