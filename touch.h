@@ -3,7 +3,16 @@
 #include "CapacitiveSensor.h"
 #include "sounds.h"
 
-#define CAPSENSE_SAMPLING 3
+#define CAP_THRESHOLD_LO 1000
+#define CAP_THRESHOLD_HI 3000
+#define CAPSENSE_SAMPLING 10
+
+//#define CAP_THRESHOLD_LO 400
+//#define CAP_THRESHOLD_HI 1000
+//#define CAPSENSE_SAMPLING 3
+
+#define CAP_THRESHOLD_SHORT 400
+#define CAPSENSE_SAMPLING_SHORT 3
 #define NOTONE (-1)
 
 //note2~7:oct1~6s
@@ -79,6 +88,7 @@ key pat2key(byte pattern){
     case B00000010: return KEY_D;
     case B00000110: return KEY_DE;
     case B00000100: return KEY_E;
+    case B00001100: return KEY_F;
     case B00001000: return KEY_F;
     case B00011000: return KEY_FG;
     case B00010000: return KEY_G;
@@ -86,6 +96,7 @@ key pat2key(byte pattern){
     case B00100000: return KEY_A;
     case B01100000: return KEY_AB;
     case B01000000: return KEY_B;
+    case B11000000: return KEY_B;
     case B10000000: return KEY_C8VA;
     default: return KEY_NONE;
   }
@@ -97,11 +108,12 @@ namespace Touch{
     const int touch_pins[]={19,18,17,16,15,14,13,12};
     const key pins2key[8]={KEY_C,KEY_D,KEY_E,KEY_F,KEY_G,KEY_A,KEY_B,KEY_C8VA};
     CapacitiveSensor cs[8];
-    int value[8];
+    long value[8];
 
     void init();
     key get();
-    key get(int* o,int samp);
+    key get10();
+//    key get(int* o,int samp);
     key getplus(int* o,int samp);
     
 }
@@ -118,27 +130,49 @@ void Touch::init(){
 key Touch::get(){
   key touch = KEY_NONE;
   for(int i=0;i<8;i++){ 
-        value[i]=cs[i].capacitiveSensor(CAPSENSE_SAMPLING);
-        if(value[i]>2000) touch = pins2key[i];
+        value[i]=cs[i].capacitiveSensor(CAPSENSE_SAMPLING_SHORT);
+        if(value[i]>CAP_THRESHOLD_SHORT) touch = pins2key[i];
     }
+    
+    for(int i=0;i<8;i++){
+       Serial.print(value[i]);
+       Serial.print("\t");
+    }
+    Serial.print("\n");
     return touch;
 }
+
+key Touch::get10(){
+  key touch = KEY_NONE;
+  for(int i=0;i<8;i++){ 
+        value[i]=cs[i].capacitiveSensor(CAPSENSE_SAMPLING);
+        if(value[i]>CAP_THRESHOLD_LO) touch = pins2key[i];
+    }
+    
+    for(int i=0;i<8;i++){
+       Serial.print(value[i]);
+       Serial.print("\t");
+    }
+    Serial.print("\n");
+    return touch;
+}
+
 //key Touch::get(int* o,int samp){
-//  key touch = KEY_NONE;
-//  *o=0;
-//  for(int i=0;i<8;i++){ 
-//        value[i]=cs[i].capacitiveSensor(samp);
-//        Serial.print(value[i]);
-//        Serial.print("\t");
-//        if(value[i]>3000){ 
-//            touch = pins2key[i];
-//            *o=1;
-//        }
-//        else if(value[i]>1000) touch = pins2key[i];
-//    }
-//    Serial.print("\n");
-//    return touch;
-//        
+// key touch = KEY_NONE;
+// *o=0;
+// for(int i=0;i<8;i++){ 
+//       value[i]=cs[i].capacitiveSensor(samp);
+//       Serial.print(value[i]);
+//       Serial.print("\t");
+//       if(value[i]>12000){ 
+//           touch = pins2key[i];
+//           *o=1;
+//       }
+//       else if(value[i]>8000) touch = pins2key[i];
+//   }
+//   Serial.print("\n");
+//   return touch;
+//       
 //}
 
 
@@ -146,10 +180,15 @@ key Touch::getplus(int* o,int samp){
   byte touchH=0,touchL=0;
   *o=0;
   for(int i=0;i<8;i++){ 
-        value[i]=cs[i].capacitiveSensor(samp);
-        if(value[i]>5000) bitWrite(touchH,i,HIGH);
-        if(value[i]>1000) bitWrite(touchL,i,HIGH);
+    value[i]=cs[i].capacitiveSensor(CAPSENSE_SAMPLING);
+        if(value[i]>CAP_THRESHOLD_HI) bitWrite(touchH,i,HIGH);
+        if(value[i]>CAP_THRESHOLD_LO) bitWrite(touchL,i,HIGH);
     }
+    for(int i=0;i<8;i++){
+       Serial.print(value[i]);
+       Serial.print("\t");
+    }
+    Serial.print("\n");
 //    Serial.print(touchH,BIN);
 //    Serial.print("\t");
 //    Serial.print(touchL,BIN);

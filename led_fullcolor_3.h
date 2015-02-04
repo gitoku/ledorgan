@@ -20,7 +20,7 @@ enum LedColor {
 namespace Led{
     LedColor color;
     byte state;
-    const int cat_pins[]={3,10,11};
+    const int cat_pins[]={2,10,11};
     const int ano_pins[]={7,5,6};
     
     //public
